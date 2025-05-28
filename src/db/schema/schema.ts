@@ -2,6 +2,7 @@ import { relations } from "drizzle-orm";
 import {
   integer,
   pgEnum,
+  pgSchema,
   pgTable,
   text,
   time,
@@ -9,27 +10,46 @@ import {
   uuid,
 } from "drizzle-orm/pg-core";
 
-export const usersTable = pgTable("users", {
+export const qaSchema = pgSchema("qa");
+
+// Users
+export const usersColumns = () => ({
   id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),
 });
 
+export const usersTable = pgTable("users", usersColumns());
+export const QaUsersTable = qaSchema.table("qa_users", usersColumns());
+
+//Users Relations
 export const usersTableRelations = relations(usersTable, ({ many }) => ({
   usersToClinics: many(usersToClinicsTable),
 }));
 
-export const usersToClinicsTable = pgTable("users_to_clinics", {
-  userId: uuid("id")
+// Users to Clinics
+export const usersToClinicsColumns = () => ({
+  userId: uuid("user_id")
     .notNull()
     .references(() => usersTable.id),
   clinicId: uuid("clinic_id")
     .notNull()
     .references(() => clinicsTable.id),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
 
+export const usersToClinicsTable = pgTable(
+  "users_to_clinics",
+  usersToClinicsColumns(),
+);
+export const qaUsersToClinicsTable = qaSchema.table(
+  "qa_users_to_clinics",
+  usersToClinicsColumns(),
+);
+
+//Users to Clinics Relations
 export const usersToClinicsTableRelations = relations(
   usersToClinicsTable,
   ({ one }) => ({
@@ -44,7 +64,8 @@ export const usersToClinicsTableRelations = relations(
   }),
 );
 
-export const clinicsTable = pgTable("clinics", {
+// Clinics Table
+export const clinicsColuns = () => ({
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),
@@ -53,6 +74,10 @@ export const clinicsTable = pgTable("clinics", {
     .$onUpdate(() => new Date()),
 });
 
+export const clinicsTable = pgTable("clinics", clinicsColuns());
+
+export const QaClinicsTable = qaSchema.table("qa_clinics", clinicsColuns());
+
 export const clinicsTableRelations = relations(clinicsTable, ({ many }) => ({
   doctors: many(doctorsTable),
   patients: many(patientsTable),
@@ -60,7 +85,8 @@ export const clinicsTableRelations = relations(clinicsTable, ({ many }) => ({
   usersToClinics: many(usersToClinicsTable),
 }));
 
-export const doctorsTable = pgTable("doctors", {
+//Doctors Tables
+export const doctorsColumns = () => ({
   id: uuid("id").primaryKey().notNull(),
   name: text("name").notNull(),
   clinicId: uuid("patient_id")
@@ -79,6 +105,9 @@ export const doctorsTable = pgTable("doctors", {
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
+export const doctorsTable = pgTable("doctors", doctorsColumns());
+
+export const QaDoctorsTable = qaSchema.table("qa_doctors", doctorsColumns());
 
 export const doctorsTableRelations = relations(doctorsTable, ({ one }) => ({
   clinic: one(clinicsTable, {
@@ -87,13 +116,15 @@ export const doctorsTableRelations = relations(doctorsTable, ({ one }) => ({
   }),
 }));
 
+//Patients Tables
+
 export const patientsSexEnum = pgEnum("patient_sex", [
   "male",
   "female",
   "other",
 ]);
 
-export const patientsTable = pgTable("patients", {
+export const patientsColumns = () => ({
   id: uuid("id").primaryKey().notNull(),
   name: text("name").notNull(),
   clinicId: uuid("patient_id")
@@ -108,6 +139,10 @@ export const patientsTable = pgTable("patients", {
     .$onUpdate(() => new Date()),
 });
 
+export const patientsTable = pgTable("patients", patientsColumns());
+
+export const QaPatientsTable = qaSchema.table("qa_patients", patientsColumns());
+
 export const patientsTableRelations = relations(patientsTable, ({ one }) => ({
   clinic: one(clinicsTable, {
     fields: [patientsTable.clinicId],
@@ -115,13 +150,8 @@ export const patientsTableRelations = relations(patientsTable, ({ one }) => ({
   }),
 }));
 
-export const appointmentStatusEnum = pgEnum("appointment_status", [
-  "To Confirm",
-  "Confirmed",
-  "Canceled",
-]);
-
-export const appointmentsTable = pgTable("appointments", {
+// Appointments Tables
+export const appointmentsColumns = () => ({
   id: uuid("id").primaryKey().notNull(),
   date: timestamp("date").notNull(),
   clinicId: uuid("patient_id")
@@ -137,8 +167,14 @@ export const appointmentsTable = pgTable("appointments", {
   updatedAt: timestamp("updatedAt")
     .defaultNow()
     .$onUpdate(() => new Date()),
-  status: appointmentStatusEnum("status").notNull(),
 });
+
+export const appointmentsTable = pgTable("appointments", appointmentsColumns());
+
+export const QaAppointmentsTable = qaSchema.table(
+  "qa_appointments",
+  appointmentsColumns(),
+);
 
 export const appointmentsTableRelations = relations(
   appointmentsTable,
