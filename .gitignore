@@ -1,6 +1,7 @@
 # See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
 
-# dependencies
+/drizzle/
+
 /node_modules
 /.pnp
 .pnp.*
@@ -41,4 +42,3 @@ yarn-error.log*
 next-env.d.ts
 
 # drizzle
-
