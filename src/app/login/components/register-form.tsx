@@ -1,6 +1,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 import { z } from "zod";
 
 import { Button } from "@/components/ui/button";
@@ -19,7 +21,6 @@ import { authClient } from "@/lib/auth-client";
 import { PasswordInput } from "../../../components/password-input";
 import { Card, CardContent } from "../../../components/ui/card";
 import SocialLogin from "./social-login";
-import { Loader2 } from "lucide-react";
 
 const RegisterSchema = z.object({
   name: z.string().trim().min(2, { message: "Nome é obrigatório" }),
@@ -50,21 +51,39 @@ export default function RegisterForm() {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
-
-    await authClient.signUp.email(
-      {
-        email: values.email,
-        password: values.password,
-        name: values.name, // User image URL (optional)
-        callbackURL: "/dashboard", // A URL to redirect to after the user verifies their email (optional)
-      },
-      {
-        onSuccess: () => {
-          redirect("/dashboard");
-          //redirect to the dashboard or sign in page
+    if (values.password == values.passwordConfirm) {
+      await authClient.signUp.email(
+        {
+          email: values.email,
+          password: values.password,
+          name: values.name, // User image URL (optional)
+          callbackURL: "/dashboard", // A URL to redirect to after the user verifies their email (optional)
         },
-      },
-    );
+        {
+          onSuccess: () => {
+            redirect("/dashboard");
+            //redirect to the dashboard or sign in page
+          },
+          onError: (ctx) => {
+            console.log(ctx.error);
+            if (ctx.error.code == "USER_ALREADY_EXISTS") {
+              toast.error("Email já cadastrado");
+            }
+            if (ctx.error.code == "PASSWORD_TOO_SHORT") {
+              toast.error(
+                "Senha muito curta, são necessários pelo menos 8 caracteres",
+              );
+            } else {
+              toast.error(
+                "Algo errado aconteceu, cheque novamente todos os campos",
+              );
+            }
+          },
+        },
+      );
+    } else {
+      toast.error("As senhas não batem");
+    }
   }
 
   return (
