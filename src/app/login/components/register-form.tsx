@@ -14,10 +14,12 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { TabsContent } from "@/components/ui/tabs";
+import { authClient } from "@/lib/auth-client";
 
 import { PasswordInput } from "../../../components/password-input";
 import { Card, CardContent } from "../../../components/ui/card";
 import SocialLogin from "./social-login";
+import { Loader2 } from "lucide-react";
 
 const RegisterSchema = z.object({
   name: z.string().trim().min(2, { message: "Nome é obrigatório" }),
@@ -44,13 +46,25 @@ export default function RegisterForm() {
     },
   });
 
-  function onSubmit(values: z.infer<typeof RegisterSchema>) {
+  async function onSubmit(values: z.infer<typeof RegisterSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
     console.log(values);
-    if (values.password === values.passwordConfirm) {
-      redirect("/dashboard");
-    }
+
+    await authClient.signUp.email(
+      {
+        email: values.email,
+        password: values.password,
+        name: values.name, // User image URL (optional)
+        callbackURL: "/dashboard", // A URL to redirect to after the user verifies their email (optional)
+      },
+      {
+        onSuccess: () => {
+          redirect("/dashboard");
+          //redirect to the dashboard or sign in page
+        },
+      },
+    );
   }
 
   return (
@@ -112,8 +126,19 @@ export default function RegisterForm() {
                   </FormItem>
                 )}
               />
-              <Button type="submit" className="w-full">
-                Login
+
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={form.formState.isSubmitting}
+              >
+                {form.formState.isSubmitting ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" /> Criando...
+                  </>
+                ) : (
+                  "Criar conta"
+                )}
               </Button>
             </form>
           </Form>

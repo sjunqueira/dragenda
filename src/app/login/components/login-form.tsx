@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { TabsContent } from "@/components/ui/tabs";
+import { authClient } from "@/lib/auth-client";
 
 import { PasswordInput } from "../../../components/password-input";
 import { Card, CardContent } from "../../../components/ui/card";
@@ -39,10 +40,20 @@ export default function LoginForm({ setTab }: LoginTabProps) {
       password: "",
     },
   });
-  function onSubmit(values: z.infer<typeof loginSchema>) {
+  async function onSubmit(values: z.infer<typeof loginSchema>) {
     // Do something with the form values.
     // ✅ This will be type-safe and validated.
-    console.log(values);
+    await authClient.signIn.email(
+      {
+        email: values.email,
+        password: values.password,
+        callbackURL: "/dashboard",
+        rememberMe: false,
+      },
+      {
+        //callbacks
+      },
+    );
   }
 
   return (
