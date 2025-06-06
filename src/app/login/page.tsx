@@ -2,13 +2,16 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { GalleryVerticalEnd } from "lucide-react";
 import Image from "next/image";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 import LoginForm from "@/app/login/components/login-form";
 import RegisterForm from "@/app/login/components/register-form";
+import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { authClient } from "@/lib/auth-client";
 
 const loginSchema = z.object({
   name: z.string().trim().min(2, { message: "Nome é obrigatório" }),
@@ -34,6 +37,22 @@ export default function AuthenticationPage() {
       password: "",
     },
   });
+
+  const session = authClient.useSession();
+  const router = useRouter();
+
+  useEffect(() => {
+    if (session) {
+      router.push("/dashboard");
+    }
+  }, [session, router]);
+
+  if (session)
+    return (
+      <div>
+        <LoadingSpinner />
+      </div>
+    );
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">

@@ -1,4 +1,5 @@
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Loader2 } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
@@ -89,7 +90,15 @@ export default function LoginForm({ setTab }: LoginTabProps) {
                 )}
               />
               <Button type="submit" className="w-full">
-                Login
+                {form.formState.isSubmitting ||
+                form.formState.isSubmitSuccessful ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{" "}
+                    Entrando...
+                  </>
+                ) : (
+                  "Login"
+                )}
               </Button>
             </form>
           </Form>
