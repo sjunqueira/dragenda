@@ -1,6 +1,6 @@
-"use client";
+import { headers } from "next/headers";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { redirect } from "next/navigation";
 
 import { AppSidebar } from "@/components/app-sidebar";
 import {
@@ -11,7 +11,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
 import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -19,23 +18,15 @@ import {
   SidebarProvider,
   SidebarTrigger,
 } from "@/components/ui/sidebar";
-import { authClient } from "@/lib/auth-client";
+import SignOutButton from "@/components/ui/signout-button";
+import { auth } from "@/lib/auth";
 
-export default function Dashboard() {
-  const session = authClient.useSession();
-  const router = useRouter();
+export default async function Dashboard() {
+  const session = await auth.api.getSession({
+    headers: await headers(), // you need to pass the headers object.
+  });
 
-  if (session.isPending) {
-    return (
-      <div className="my-auto h-full w-full items-center justify-center">
-        <LoadingSpinner />
-      </div>
-    );
-  }
-
-  console.log(session);
-  if (session.data?.user) {
-    console.log(`TOken da sessão:`);
+  if (session) {
     return (
       <SidebarProvider>
         <AppSidebar />
@@ -51,7 +42,7 @@ export default function Dashboard() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="#">
-                      Olá {session?.data?.user?.name}
+                      Olá {session?.user?.name}
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />
@@ -67,19 +58,7 @@ export default function Dashboard() {
               <div className="bg-muted/50 aspect-video rounded-xl" />
               <div className="bg-muted/50 aspect-video rounded-xl" />
               <div className="bg-muted/50 aspect-video rounded-xl" />
-              <Button
-                onClick={() =>
-                  authClient.signOut({
-                    fetchOptions: {
-                      onSuccess: () => {
-                        router.push("/login"); // redirect to login page
-                      },
-                    },
-                  })
-                }
-              >
-                Sair
-              </Button>
+              <SignOutButton />
             </div>
             <div className="bg-muted/50 min-h-[100vh] flex-1 rounded-xl md:min-h-min" />
           </div>
@@ -88,7 +67,7 @@ export default function Dashboard() {
     );
   } else {
     setTimeout(() => {
-      router.push("/login");
+      redirect("/login");
     }, 3000);
     return (
       <div>

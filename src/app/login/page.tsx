@@ -42,17 +42,10 @@ export default function AuthenticationPage() {
   const router = useRouter();
 
   useEffect(() => {
-    if (session) {
+    if (session.data?.user) {
       router.push("/dashboard");
     }
   }, [session, router]);
-
-  if (session)
-    return (
-      <div>
-        <LoadingSpinner />
-      </div>
-    );
 
   return (
     <div className="grid min-h-svh lg:grid-cols-2">
