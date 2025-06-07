@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -11,7 +12,6 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Separator } from "@/components/ui/separator";
 import {
   SidebarInset,
@@ -19,6 +19,8 @@ import {
   SidebarTrigger,
 } from "@/components/ui/sidebar";
 import SignOutButton from "@/components/ui/signout-button";
+import { db } from "@/db";
+import { clinicsTable, usersToClinicsTable } from "@/db/schema/schema";
 import { auth } from "@/lib/auth";
 
 export default async function Dashboard() {
@@ -27,6 +29,18 @@ export default async function Dashboard() {
   });
 
   if (session) {
+    const clinics = db.query.usersToClinicsTable.findMany({
+      where: eq(usersToClinicsTable.userId, session?.user.id),
+    });
+
+    const clinicsList = await clinics;
+
+    const clinic = await db.query.clinicsTable.findFirst({
+      where: eq(clinicsTable.id, clinicsList[0]?.clinicId),
+    });
+    if ((await clinics).length == 0) {
+      redirect("/clinic-form");
+    }
     return (
       <SidebarProvider>
         <AppSidebar />
@@ -42,7 +56,7 @@ export default async function Dashboard() {
                 <BreadcrumbList>
                   <BreadcrumbItem className="hidden md:block">
                     <BreadcrumbLink href="#">
-                      Olá {session?.user?.name}
+                      Olá {session?.user?.name}, você está na {clinic?.name}
                     </BreadcrumbLink>
                   </BreadcrumbItem>
                   <BreadcrumbSeparator className="hidden md:block" />

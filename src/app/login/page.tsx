@@ -9,7 +9,6 @@ import { z } from "zod";
 
 import LoginForm from "@/app/login/components/login-form";
 import RegisterForm from "@/app/login/components/register-form";
-import { LoadingSpinner } from "@/components/ui/loading-spinner";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 
