@@ -1,6 +1,7 @@
 "use server";
 
 import { headers } from "next/headers";
+import { redirect } from "next/navigation";
 
 import { db } from "@/db";
 import { clinicsTable, usersToClinicsTable } from "@/db/schema/schema";
@@ -19,4 +20,5 @@ export const createClinic = async (name: string) => {
     userId: session.user.id,
     clinicId: clinic.id,
   });
+  redirect("/dashboard");
 };
