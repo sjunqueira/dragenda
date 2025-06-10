@@ -7,8 +7,8 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import LoginForm from "@/app/login/components/login-form";
-import RegisterForm from "@/app/login/components/register-form";
+import LoginForm from "@/app/login/_components/login-form";
+import RegisterForm from "@/app/login/_components/register-form";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { authClient } from "@/lib/auth-client";
 
