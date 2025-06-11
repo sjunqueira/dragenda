@@ -73,10 +73,6 @@ export default function RegisterForm() {
               toast.error(
                 "Senha muito curta, são necessários pelo menos 8 caracteres",
               );
-            } else {
-              toast.error(
-                "Algo errado aconteceu, cheque novamente todos os campos",
-              );
             }
           },
         },

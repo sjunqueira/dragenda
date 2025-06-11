@@ -6,6 +6,7 @@ import { authClient } from "@/lib/auth-client";
 
 export default function SocialLogin() {
   async function onSubmit(method: "google" | "github") {
+    console.log(method)
     await authClient.signIn.social({
       provider: method,
       callbackURL: "/dashboard",
@@ -19,7 +20,9 @@ export default function SocialLogin() {
   const handleClick = async (method: "google" | "github") => {
     setLoading(method);
     try {
+      console.log(method)
       await onSubmit(method);
+
     } finally {
       setLoading(null);
     }

@@ -1,11 +1,12 @@
 import { eq } from "drizzle-orm";
 import { headers } from "next/headers";
-import Link from "next/link";
 import { redirect } from "next/navigation";
 
 import { db } from "@/db";
 import { clinicsTable, usersToClinicsTable } from "@/db/schema/schema";
 import { auth } from "@/lib/auth";
+import ClinicForm from "../clinic-form/clinic-form";
+import NewClinicForm from "../clinic-form/_components/form";
 
 export default async function Dashboard() {
   const session = await auth.api.getSession({
@@ -23,7 +24,12 @@ export default async function Dashboard() {
       where: eq(clinicsTable.id, clinicsList[0]?.clinicId),
     });
     if ((await clinics).length == 0) {
-      redirect("/clinic-form");
+      return (
+        <div className="mx-auto flex h-full w-fit flex-col content-center items-center justify-center">
+          Está meio vazio por aqui...
+          <NewClinicForm />
+        </div>
+      );
     }
     return (
       <div>
@@ -33,21 +39,6 @@ export default async function Dashboard() {
       </div>
     );
   } else {
-    setTimeout(() => {
-      redirect("/login");
-    }, 3000);
-    return (
-      <div>
-        <p>
-          Parece que não tem nada por aqui, redirecionando para a tela de login
-        </p>
-        <h1>
-          Se você não for redirecionado{" "}
-          <Link href={"/login"} className="text-blue-400">
-            clique aqui
-          </Link>
-        </h1>
-      </div>
-    );
+    redirect("/login");
   }
 }

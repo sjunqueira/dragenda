@@ -11,6 +11,8 @@ const SignOutButton = () => {
 
   return (
     <Button
+      variant={"ghost"}
+      className="h-2 w-full"
       onClick={() =>
         authClient.signOut({
           fetchOptions: {

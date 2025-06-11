@@ -6,12 +6,11 @@ const ProtectedLayout = ({ children }: { children: React.ReactNode }) => {
     <div>
       <SidebarProvider>
         <AppSidebar />
-        <main className="p-5">
+        <main className="w-full p-5">
           <SidebarTrigger />
           {children}
         </main>
       </SidebarProvider>
-      {children}
     </div>
   );
 };
