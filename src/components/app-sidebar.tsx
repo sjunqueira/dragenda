@@ -1,15 +1,15 @@
 import { eq, inArray } from "drizzle-orm";
 import {
+  Banknote,
   Calendar,
   ChartArea,
-  PlusIcon,
+  Settings,
   Stethoscope,
-  User2Icon,
+  UserCircle,
   UserRoundSearch,
 } from "lucide-react";
 import { headers } from "next/headers";
 import Image from "next/image";
-import { redirect } from "next/navigation";
 
 import NewClinicForm from "@/app/(protected)/clinic-form/_components/form";
 import {
@@ -27,17 +27,7 @@ import { db } from "@/db";
 import { clinicsTable, usersToClinicsTable } from "@/db/schema/schema";
 import { auth } from "@/lib/auth";
 
-import { Button } from "./ui/button";
-import {
-  Dialog,
-  DialogClose,
-  DialogContent,
-  DialogDescription,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "./ui/dialog";
+import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -48,8 +38,6 @@ import {
   DropdownMenuShortcut,
   DropdownMenuTrigger,
 } from "./ui/dropdown-menu";
-import { Input } from "./ui/input";
-import { Label } from "./ui/label";
 import SignOutButton from "./ui/signout-button";
 
 // Menu items.
@@ -76,6 +64,24 @@ const MainItems = [
   },
 ];
 
+const SettingsItems = [
+  {
+    title: "Perfil",
+    url: "/perfil",
+    icon: UserCircle,
+  },
+  {
+    title: "Financeiro",
+    url: "/financeiro",
+    icon: Banknote,
+  },
+  {
+    title: "Configurações",
+    url: "/configuracoes",
+    icon: Settings,
+  },
+];
+
 export async function AppSidebar() {
   const session = await auth.api.getSession({
     headers: await headers(), // you need to pass the headers object.
@@ -88,7 +94,7 @@ export async function AppSidebar() {
 
     const clinicsIds = (await clinics).map((c) => c.clinicId);
 
-    const clinicsNames = db.query.clinicsTable.findMany({
+    const clinicsNames = await db.query.clinicsTable.findMany({
       where: inArray(clinicsTable.id, clinicsIds),
       columns: {
         name: true,
@@ -125,25 +131,41 @@ export async function AppSidebar() {
                 <SidebarMenuItem>
                   <DropdownMenu>
                     {/* <div className="flex flex-col"> */}
-                    <DropdownMenuTrigger className="flex items-center justify-center gap-2">
-                      <User2Icon />
-                      Minha Conta
+                    <DropdownMenuTrigger className="flex items-center justify-center gap-3">
+                      <Avatar>
+                        <AvatarImage
+                          src={session.user.image ?? undefined}
+                          alt={session.user.name ?? ""}
+                        />
+                        <AvatarFallback>
+                          {session.user.name
+                            ?.split(" ")
+                            .map((n) => n[0])
+                            .join("")
+                            .toUpperCase()
+                            .slice(0)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="flex flex-col items-start text-sm">
+                        <p className="text-sm">{clinicsNames[0]?.name}</p>
+                        <p className="text-muted-foreground text-sm">
+                          {session.user.email}
+                        </p>
+                      </div>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent className="w-56" align="start">
                       <DropdownMenuLabel>Minha Conta</DropdownMenuLabel>
                       <DropdownMenuGroup>
-                        <DropdownMenuItem>
-                          Perfil
-                          <DropdownMenuShortcut>⇧⌘P</DropdownMenuShortcut>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          Financeiro
-                          <DropdownMenuShortcut>⌘B</DropdownMenuShortcut>
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          Configurações
-                          <DropdownMenuShortcut>⌘S</DropdownMenuShortcut>
-                        </DropdownMenuItem>
+                        {SettingsItems.map((item) => (
+                          <SidebarMenuItem key={item.title}>
+                            <SidebarMenuButton asChild>
+                              <a href={item.url}>
+                                <item.icon />
+                                <span>{item.title}</span>
+                              </a>
+                            </SidebarMenuButton>
+                          </SidebarMenuItem>
+                        ))}
                       </DropdownMenuGroup>
                       <DropdownMenuSeparator />
                       <DropdownMenuLabel>Minhas Clinicas</DropdownMenuLabel>
