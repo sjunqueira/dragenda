@@ -1,17 +1,9 @@
 import { eq, inArray } from "drizzle-orm";
-import {
-  Banknote,
-  Calendar,
-  ChartArea,
-  Settings,
-  Stethoscope,
-  UserCircle,
-  UserRoundSearch,
-} from "lucide-react";
+import { Banknote, Settings, UserCircle } from "lucide-react";
 import { headers } from "next/headers";
 import Image from "next/image";
 
-import NewClinicForm from "@/app/(protected)/clinic-form/_components/form";
+import NewClinicForm from "@/app/(protected)/components/form";
 import {
   Sidebar,
   SidebarContent,
@@ -27,7 +19,11 @@ import { db } from "@/db";
 import { clinicsTable, usersToClinicsTable } from "@/db/schema/schema";
 import { auth } from "@/lib/auth";
 
-import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import {
+  Avatar,
+  AvatarFallback,
+  AvatarImage,
+} from "../../../components/ui/avatar";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,32 +33,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuShortcut,
   DropdownMenuTrigger,
-} from "./ui/dropdown-menu";
-import SignOutButton from "./ui/signout-button";
+} from "../../../components/ui/dropdown-menu";
+import SignOutButton from "../../../components/ui/signout-button";
+import { ClientSidebar } from "./sidebar-client";
 
 // Menu items.
-const MainItems = [
-  {
-    title: "Dashboard",
-    url: "/dashboard",
-    icon: ChartArea,
-  },
-  {
-    title: "Agendamentos",
-    url: "/agendamentos",
-    icon: Calendar,
-  },
-  {
-    title: "Médicos",
-    url: "/medicos",
-    icon: Stethoscope,
-  },
-  {
-    title: "Pacientes",
-    url: "/pacientes",
-    icon: UserRoundSearch,
-  },
-];
 
 const SettingsItems = [
   {
@@ -107,23 +82,7 @@ export async function AppSidebar() {
           <Image src={"/Logo.svg"} alt="Dr. Agenda" width={137} height={28} />
         </SidebarHeader>
         <SidebarContent className="justify-between">
-          <SidebarGroup>
-            <SidebarGroupLabel>Menu Principal</SidebarGroupLabel>
-            <SidebarGroupContent>
-              <SidebarMenu>
-                {MainItems.map((item) => (
-                  <SidebarMenuItem key={item.title}>
-                    <SidebarMenuButton asChild>
-                      <a href={item.url}>
-                        <item.icon />
-                        <span>{item.title}</span>
-                      </a>
-                    </SidebarMenuButton>
-                  </SidebarMenuItem>
-                ))}
-              </SidebarMenu>
-            </SidebarGroupContent>
-          </SidebarGroup>
+          <ClientSidebar />
           <SidebarGroup>
             <SidebarGroupLabel>Configurações</SidebarGroupLabel>
             <SidebarGroupContent>
@@ -149,7 +108,7 @@ export async function AppSidebar() {
                       <div className="flex flex-col items-start text-sm">
                         <p className="text-sm">{clinicsNames[0]?.name}</p>
                         <p className="text-muted-foreground text-sm">
-                          {session.user.email}
+                          {session.user.name}
                         </p>
                       </div>
                     </DropdownMenuTrigger>

@@ -1,6 +1,9 @@
 "use client";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { DialogTitle } from "@radix-ui/react-dialog";
 import { Loader2, PlusIcon } from "lucide-react";
+import { isRedirectError } from "next/dist/client/components/redirect-error";
+import { redirect } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
@@ -23,8 +26,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { DialogTitle } from "@radix-ui/react-dialog";
-import { isRedirectError } from "next/dist/client/components/redirect-error";
 
 const ClinicFormSchema = z.object({
   name: z.string().trim().min(1, { message: "Nome é obrigatório" }),
@@ -42,6 +43,7 @@ const NewClinicForm = () => {
     try {
       await createClinic(data.name);
       toast.success("Clínica criada com sucesso");
+      redirect("#");
     } catch (error) {
       if (isRedirectError(error)) {
         return;

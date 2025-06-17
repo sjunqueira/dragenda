@@ -3,15 +3,12 @@ import {
   boolean,
   integer,
   pgEnum,
-  pgSchema,
   pgTable,
   text,
   time,
   timestamp,
   uuid,
 } from "drizzle-orm/pg-core";
-
-export const qaSchema = pgSchema("qa");
 
 // Users
 export const usersColumns = () => ({
@@ -39,8 +36,6 @@ export const user = pgTable("user", {
     .$defaultFn(() => /* @__PURE__ */ new Date())
     .notNull(),
 });
-
-export const Qauser = qaSchema.table("qa_users", usersColumns());
 
 export const session = pgTable("session", {
   id: text("id").primaryKey(),
@@ -95,10 +90,10 @@ export const userRelations = relations(user, ({ many }) => ({
 export const usersToClinicsColumns = () => ({
   userId: text("user_id")
     .notNull()
-    .references(() => user.id),
+    .references(() => user.id, { onDelete: "cascade" }),
   clinicId: uuid("clinic_id")
     .notNull()
-    .references(() => clinicsTable.id),
+    .references(() => clinicsTable.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
@@ -107,10 +102,6 @@ export const usersToClinicsColumns = () => ({
 
 export const usersToClinicsTable = pgTable(
   "users_to_clinics",
-  usersToClinicsColumns(),
-);
-export const qaUsersToClinicsTable = qaSchema.table(
-  "qa_users_to_clinics",
   usersToClinicsColumns(),
 );
 
@@ -141,8 +132,6 @@ export const clinicsColuns = () => ({
 
 export const clinicsTable = pgTable("clinics", clinicsColuns());
 
-export const QaClinicsTable = qaSchema.table("qa_clinics", clinicsColuns());
-
 export const clinicsTableRelations = relations(clinicsTable, ({ many }) => ({
   doctors: many(doctorsTable),
   patients: many(patientsTable),
@@ -171,8 +160,6 @@ export const doctorsColumns = () => ({
     .$onUpdate(() => new Date()),
 });
 export const doctorsTable = pgTable("doctors", doctorsColumns());
-
-export const QaDoctorsTable = qaSchema.table("qa_doctors", doctorsColumns());
 
 export const doctorsTableRelations = relations(doctorsTable, ({ one }) => ({
   clinic: one(clinicsTable, {
@@ -206,8 +193,6 @@ export const patientsColumns = () => ({
 
 export const patientsTable = pgTable("patients", patientsColumns());
 
-export const QaPatientsTable = qaSchema.table("qa_patients", patientsColumns());
-
 export const patientsTableRelations = relations(patientsTable, ({ one }) => ({
   clinic: one(clinicsTable, {
     fields: [patientsTable.clinicId],
@@ -235,11 +220,6 @@ export const appointmentsColumns = () => ({
 });
 
 export const appointmentsTable = pgTable("appointments", appointmentsColumns());
-
-export const QaAppointmentsTable = qaSchema.table(
-  "qa_appointments",
-  appointmentsColumns(),
-);
 
 export const appointmentsTableRelations = relations(
   appointmentsTable,

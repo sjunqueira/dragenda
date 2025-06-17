@@ -5,8 +5,27 @@ import { redirect } from "next/navigation";
 import { db } from "@/db";
 import { clinicsTable, usersToClinicsTable } from "@/db/schema/schema";
 import { auth } from "@/lib/auth";
-import ClinicForm from "../clinic-form/clinic-form";
-import NewClinicForm from "../clinic-form/_components/form";
+import ClinicForm from "../components/clinic-form";
+import NewClinicForm from "../components/form";
+import {
+  Breadcrumb,
+  BreadcrumbList,
+  BreadcrumbItem,
+  BreadcrumbLink,
+  BreadcrumbSeparator,
+} from "@/components/ui/breadcrumb";
+import { Button } from "@/components/ui/button";
+import { Plus } from "lucide-react";
+import {
+  PageContainer,
+  PageHeader,
+  PageHeaderContent,
+  PageHeaderTitle,
+  PageHeaderDescription,
+  PageHeaderActions,
+  PageContent,
+} from "../components/pagecontainer";
+import Link from "next/link";
 
 export default async function Dashboard() {
   const session = await auth.api.getSession({
@@ -32,11 +51,33 @@ export default async function Dashboard() {
       );
     }
     return (
-      <div>
-        <h1>Dashboard</h1>
-        <p>{clinic?.name}</p>
-        <p>{session?.user.name}</p>
-      </div>
+      <PageContainer>
+        <Breadcrumb>
+          <BreadcrumbList>
+            <BreadcrumbItem>
+              <BreadcrumbLink asChild>
+                <Link href="/dashboard">Home</Link>
+              </BreadcrumbLink>
+            </BreadcrumbItem>
+            <BreadcrumbSeparator />
+          </BreadcrumbList>
+        </Breadcrumb>
+        <PageHeader>
+          <PageHeaderContent>
+            <PageHeaderTitle>Dashboard</PageHeaderTitle>
+            <PageHeaderDescription>
+              Verifique os resultados do(a) {clinic?.name}
+            </PageHeaderDescription>
+          </PageHeaderContent>
+          <PageHeaderActions>
+            <Button variant={"ghost"}>
+              <Plus />
+              Adicionar Paciente
+            </Button>
+          </PageHeaderActions>
+        </PageHeader>
+        <PageContent>Conteúdo</PageContent>
+      </PageContainer>
     );
   } else {
     redirect("/login");
