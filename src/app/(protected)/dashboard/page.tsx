@@ -1,31 +1,31 @@
 import { eq } from "drizzle-orm";
+import { Plus } from "lucide-react";
 import { headers } from "next/headers";
+import Link from "next/link";
 import { redirect } from "next/navigation";
 
-import { db } from "@/db";
-import { clinicsTable, usersToClinicsTable } from "@/db/schema/schema";
-import { auth } from "@/lib/auth";
-import ClinicForm from "../components/clinic-form";
-import NewClinicForm from "../components/form";
 import {
   Breadcrumb,
-  BreadcrumbList,
   BreadcrumbItem,
   BreadcrumbLink,
+  BreadcrumbList,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
-import { Plus } from "lucide-react";
+import { db } from "@/db";
+import { clinicsTable, usersToClinicsTable } from "@/db/schema/schema";
+import { auth } from "@/lib/auth";
+
+import NewClinicForm from "../components/form";
 import {
   PageContainer,
-  PageHeader,
-  PageHeaderContent,
-  PageHeaderTitle,
-  PageHeaderDescription,
-  PageHeaderActions,
   PageContent,
+  PageHeader,
+  PageHeaderActions,
+  PageHeaderContent,
+  PageHeaderDescription,
+  PageHeaderTitle,
 } from "../components/pagecontainer";
-import Link from "next/link";
 
 export default async function Dashboard() {
   const session = await auth.api.getSession({
@@ -44,10 +44,24 @@ export default async function Dashboard() {
     });
     if ((await clinics).length == 0) {
       return (
-        <div className="mx-auto flex h-full w-fit flex-col content-center items-center justify-center">
-          Está meio vazio por aqui...
-          <NewClinicForm />
-        </div>
+        <PageContainer>
+          <Breadcrumb>
+            <BreadcrumbList>
+              <BreadcrumbItem>
+                <BreadcrumbLink asChild>
+                  <Link href="/dashboard">Home</Link>
+                </BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator />
+            </BreadcrumbList>
+          </Breadcrumb>
+          <PageContent>
+            <div className="mx-auto my-auto flex flex-col items-center justify-center gap-6 space-y-6">
+              Parece que você ainda não cadastrou nenhuma clinica
+              <NewClinicForm />
+            </div>
+          </PageContent>
+        </PageContainer>
       );
     }
     return (

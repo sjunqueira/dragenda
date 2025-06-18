@@ -1,5 +1,7 @@
 import { Plus } from "lucide-react";
+import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import {
   Breadcrumb,
@@ -9,7 +11,9 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
+import { auth } from "@/lib/auth";
 
+import NewClinicForm from "../components/form";
 import {
   PageContainer,
   PageContent,
@@ -20,7 +24,19 @@ import {
   PageHeaderTitle,
 } from "../components/pagecontainer";
 
-const DoctorsPage = () => {
+const DoctorsPage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+
+  if (!session?.user) {
+    redirect("/login");
+  }
+
+  if (!session.user.clinic) {
+    <NewClinicForm />;
+  }
+
   return (
     <PageContainer>
       <Breadcrumb>

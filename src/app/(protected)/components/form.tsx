@@ -59,7 +59,7 @@ const NewClinicForm = () => {
         <form>
           <DialogTitle />
           <DialogTrigger asChild>
-            <Button variant="ghost" className="w-full">
+            <Button variant="default" className="w-full">
               <PlusIcon />
               Cadastrar nova clínica
             </Button>
