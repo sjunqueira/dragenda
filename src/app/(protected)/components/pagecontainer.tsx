@@ -41,5 +41,7 @@ export const PageHeaderActions = ({
 };
 
 export const PageContent = ({ children }: { children: React.ReactNode }) => {
-  return <div className="mt-6 space-y-6">{children}</div>;
+  return (
+    <div className="mt-6 flex items-start gap-3 space-y-6">{children}</div>
+  );
 };

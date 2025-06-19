@@ -124,8 +124,8 @@ export const usersToClinicsTableRelations = relations(
 export const clinicsColuns = () => ({
   id: uuid("id").defaultRandom().primaryKey(),
   name: text("name").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
@@ -141,32 +141,36 @@ export const clinicsTableRelations = relations(clinicsTable, ({ many }) => ({
 
 //Doctors Tables
 export const doctorsColumns = () => ({
-  id: uuid("id").primaryKey().notNull(),
-  name: text("name").notNull(),
-  clinicId: uuid("patient_id")
+  id: uuid("id").defaultRandom().primaryKey(),
+  clinicId: uuid("clinic_id")
     .notNull()
-    .references(() => clinicsTable.id),
+    .references(() => clinicsTable.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
   avatarImageUrl: text("avatar_image_url"),
-  specialty: text("specialty").notNull(),
-  appointmentsPriceInCents: integer("appointments_price_in_cents").notNull(),
   // 0 - Domingo, 1 - Segunda, 2 - Terça, 3 - Quarta, 4 - Quinta, 5 - Sexta, 6 - Sábado
-  avaiableFromWeekday: integer("avaiable_from_weekday").notNull(),
-  avaiableToWeekday: integer("avaiable_to_weekday").notNull(),
-  avaiableFromTime: time("avaiable_from_time").notNull(),
-  avaiableToTime: time("avaiable_to_time").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
+  availableFromWeekDay: integer("available_from_weekday").notNull(),
+  availableToWeekDay: integer("available_to_weekday").notNull(),
+  availableFromTime: time("available_from_time").notNull(),
+  availableToTime: time("available_to_time").notNull(),
+  specialty: text("specialty").notNull(),
+  appointmentPriceInCents: integer("appointment_price_in_cents").notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
 export const doctorsTable = pgTable("doctors", doctorsColumns());
 
-export const doctorsTableRelations = relations(doctorsTable, ({ one }) => ({
-  clinic: one(clinicsTable, {
-    fields: [doctorsTable.clinicId],
-    references: [clinicsTable.id],
+export const doctorsTableRelations = relations(
+  doctorsTable,
+  ({ many, one }) => ({
+    clinic: one(clinicsTable, {
+      fields: [doctorsTable.clinicId],
+      references: [clinicsTable.id],
+    }),
+    appointments: many(appointmentsTable),
   }),
-}));
+);
 
 //Patients Tables
 
@@ -185,8 +189,8 @@ export const patientsColumns = () => ({
   email: text("email").notNull().unique(),
   sex: patientsSexEnum("sex").notNull(),
   phoneNumber: text("phone_number").notNull(),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
@@ -213,8 +217,8 @@ export const appointmentsColumns = () => ({
   doctorId: uuid("doctor_id")
     .notNull()
     .references(() => doctorsTable.id),
-  createdAt: timestamp("createdAt").defaultNow().notNull(),
-  updatedAt: timestamp("updatedAt")
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at")
     .defaultNow()
     .$onUpdate(() => new Date()),
 });
