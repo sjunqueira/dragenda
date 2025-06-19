@@ -23,6 +23,7 @@ import {
   PageHeaderDescription,
   PageHeaderTitle,
 } from "../components/pagecontainer";
+import AddDoctorButton from "./_components/add-doctor-button";
 
 const DoctorsPage = async () => {
   const session = await auth.api.getSession({
@@ -62,10 +63,7 @@ const DoctorsPage = async () => {
           </PageHeaderDescription>
         </PageHeaderContent>
         <PageHeaderActions>
-          <Button>
-            <Plus />
-            Adicionar Médico
-          </Button>
+          <AddDoctorButton />
         </PageHeaderActions>
       </PageHeader>
       <PageContent>Conteúdo</PageContent>
