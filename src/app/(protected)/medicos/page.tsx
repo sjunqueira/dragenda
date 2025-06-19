@@ -96,7 +96,7 @@ const DoctorsPage = async () => {
       </PageHeader>
       <PageContent>
         {doctors.map((item) => (
-          <Card key={item.id} className="flex w-72 border-0" aria-invalid>
+          <Card key={item.id} className="flex border-0" aria-invalid>
             <CardContent className="flex flex-col justify-center gap-3">
               <div className="flex items-center gap-2">
                 <Avatar className="h-16 w-16">
