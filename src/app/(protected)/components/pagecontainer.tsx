@@ -4,7 +4,7 @@ export const PageContainer = ({ children }: { children: React.ReactNode }) => {
 
 export const PageHeader = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="flex w-full flex-col items-start gap-4 md:flex-row md:items-center md:justify-between">
+    <div className="flex w-full flex-col items-start gap-4 md:flex-row md:items-center md:justify-between md:space-x-6">
       {children}
     </div>
   );
@@ -15,7 +15,7 @@ export const PageHeaderContent = ({
 }: {
   children: React.ReactNode;
 }) => {
-  return <div className="space-y-1 sm:flex-col">{children}</div>;
+  return <div className="space-y-1 space-x-3 sm:flex-col">{children}</div>;
 };
 
 export const PageHeaderTitle = ({
@@ -39,12 +39,12 @@ export const PageHeaderActions = ({
 }: {
   children: React.ReactNode;
 }) => {
-  return <div className="flex items-center gap-2">{children}</div>;
+  return <div className="m-3 flex items-center gap-2">{children}</div>;
 };
 
 export const PageContent = ({ children }: { children: React.ReactNode }) => {
   return (
-    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
       {children}
     </div>
   );

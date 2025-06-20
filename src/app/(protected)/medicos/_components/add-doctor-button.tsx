@@ -17,7 +17,7 @@ const AddDoctorButton = ({ message }: AddDoctorButtonProps) => {
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button>
-          <Plus />
+          {message === "Adicionar novo médico" && <Plus />}
           {message}
         </Button>
       </DialogTrigger>
