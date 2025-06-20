@@ -9,6 +9,7 @@ import { auth } from "@/lib/auth";
 import { actionClient } from "@/lib/next-safe-acion";
 
 import { upsertDoctorSchema } from "./schema";
+import { revalidatePath } from "next/cache";
 
 dayjs.extend(utc);
 
@@ -59,4 +60,5 @@ export const upsertDoctor = actionClient
           availableToTime: availableToTimeUtc.format("HH:mm:ss"),
         },
       });
+    revalidatePath("/medicos");
   });

@@ -1,9 +1,25 @@
+import dayjs from "dayjs";
+import customParseFormat from "dayjs/plugin/customParseFormat";
+import timezone from "dayjs/plugin/timezone";
+import utc from "dayjs/plugin/utc";
 import { CalendarDays, Clock, DollarSign, Stethoscope } from "lucide-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 
 import AddDoctorButton from "./add-doctor-button";
+import { formatCurrencyInCents } from "@/app/helpers/currency";
+
+dayjs.extend(customParseFormat);
+dayjs.extend(utc);
+dayjs.extend(timezone);
 
 type DoctorCardProps = {
   id: string;
@@ -21,14 +37,33 @@ type DoctorCardProps = {
 };
 
 const DoctorCard = (item: DoctorCardProps) => {
+  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+  const weekDays = [
+    "Domingo",
+    "Segunda",
+    "Terça",
+    "Quarta",
+    "Quinta",
+    "Sexta",
+    "Sábado",
+  ];
+  const fromWeekDayName = weekDays[item.availableFromWeekDay];
+  const toWeekDayName = weekDays[item.availableToWeekDay];
+
+  const fromTime = dayjs
+    .utc(item.availableFromTime, "HH:mm:ss")
+    .tz(userTimeZone)
+    .format("HH:mm");
+
+  const toTime = dayjs
+    .utc(item.availableToTime, "HH:mm:ss")
+    .tz(userTimeZone)
+    .format("HH:mm");
+
   return (
-    <Card
-      key={item.id}
-      className="flex justify-between lg:min-h-96 lg:max-w-64"
-      aria-invalid
-    >
-      <CardContent className="flex h-96 flex-col justify-between gap-3">
-        <div className="flex flex-col items-center justify-center gap-2">
+    <Card key={item.id} aria-invalid>
+      <CardHeader>
+        <div className="flex flex-col items-center justify-center gap-4">
           <Avatar className="h-16 w-16">
             <AvatarImage
               src={item.avatarImageUrl ?? undefined}
@@ -43,8 +78,8 @@ const DoctorCard = (item: DoctorCardProps) => {
                 .slice(0)}
             </AvatarFallback>
           </Avatar>
-          <div className="flex flex-col items-center justify-center gap-1">
-            <div className="text-sm font-bold">Dr(a). {item.name}</div>
+          <div className="flex flex-col items-center justify-start gap-2">
+            <h3 className="text-sm font-medium">Dr(a). {item.name}</h3>
             <div className="text-muted-foreground flex items-center gap-2 text-sm">
               <div className="rounded-4xl bg-blue-100">
                 <Stethoscope
@@ -56,21 +91,27 @@ const DoctorCard = (item: DoctorCardProps) => {
             </div>
           </div>
         </div>
-        <div className="mt-6 flex flex-col gap-3">
-          <p className="flex items-center gap-2">
+      </CardHeader>
+      <Separator />
+      <CardContent className="flex flex-col gap-3">
+        <div className="flex flex-col gap-3">
+          <Badge variant={"secondary"} className="flex items-center gap-2">
             <CalendarDays size={16} />
-            {item.availableFromWeekDay} a {item.availableToWeekDay}
-          </p>
-          <p className="flex items-center gap-2">
+            De {fromWeekDayName} a {toWeekDayName}
+          </Badge>
+          <Badge variant={"secondary"} className="flex items-center gap-2">
             <Clock size={16} />
-            Das {item.availableFromTime} as {item.availableToTime}
-          </p>
-          <p className="flex items-center gap-2">
+            Das {fromTime} às {toTime}
+          </Badge>
+          <Badge variant={"secondary"} className="flex items-center gap-2">
             <DollarSign size={16} />
-            R${item.appointmentPriceInCents}
-          </p>
+            {formatCurrencyInCents(item.appointmentPriceInCents)}
+          </Badge>
         </div>
-        <AddDoctorButton message="Ver detalhes" />
+        <Separator />
+        <CardFooter className="flex w-full gap-1">
+          <AddDoctorButton variant="secondary" message="Ver detalhes" />
+        </CardFooter>
       </CardContent>
     </Card>
   );

@@ -43,9 +43,5 @@ export const PageHeaderActions = ({
 };
 
 export const PageContent = ({ children }: { children: React.ReactNode }) => {
-  return (
-    <div className="mt-6 grid grid-cols-1 gap-3 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5">
-      {children}
-    </div>
-  );
+  return <div className="mt-6 mr-3">{children}</div>;
 };

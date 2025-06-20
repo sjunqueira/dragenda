@@ -1,5 +1,5 @@
 "use client";
-import { Plus } from "lucide-react";
+import { Pencil, Plus } from "lucide-react";
 import { useState } from "react";
 
 import { Button } from "@/components/ui/button";
@@ -9,15 +9,17 @@ import UpsertDoctorForm from "./upsert-doctor-form";
 
 type AddDoctorButtonProps = {
   message: string;
+  variant: "ghost" | "default" | "secondary";
 };
 
-const AddDoctorButton = ({ message }: AddDoctorButtonProps) => {
+const AddDoctorButton = ({ message, variant }: AddDoctorButtonProps) => {
   const [isOpen, setIsOpen] = useState(false);
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button>
+        <Button variant={variant} className="w-full">
           {message === "Adicionar novo médico" && <Plus />}
+          {message === "Editar" && <Pencil />}
           {message}
         </Button>
       </DialogTrigger>
