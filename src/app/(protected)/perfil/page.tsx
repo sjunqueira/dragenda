@@ -1,4 +1,4 @@
-import { Edit, Plus } from "lucide-react";
+import { Edit } from "lucide-react";
 import Link from "next/link";
 
 import {
@@ -6,6 +6,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -32,9 +33,9 @@ const ProfilePage = () => {
           </BreadcrumbItem>
           <BreadcrumbSeparator />
           <BreadcrumbItem>
-            <BreadcrumbLink asChild>
-              <Link href="/">Perfil</Link>
-            </BreadcrumbLink>
+            <BreadcrumbPage>
+              <Link href={"/perfil"}>Perfil</Link>
+            </BreadcrumbPage>
           </BreadcrumbItem>
         </BreadcrumbList>
       </Breadcrumb>

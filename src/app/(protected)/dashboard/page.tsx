@@ -9,6 +9,7 @@ import {
   BreadcrumbItem,
   BreadcrumbLink,
   BreadcrumbList,
+  BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { Button } from "@/components/ui/button";
@@ -49,7 +50,9 @@ export default async function Dashboard() {
             <BreadcrumbList>
               <BreadcrumbItem>
                 <BreadcrumbLink asChild>
-                  <Link href="/dashboard">Home</Link>
+                  <Link href="/dashboard" className="to-blue-500">
+                    Home
+                  </Link>
                 </BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator />
@@ -70,7 +73,9 @@ export default async function Dashboard() {
           <BreadcrumbList>
             <BreadcrumbItem>
               <BreadcrumbLink asChild>
-                <Link href="/dashboard">Home</Link>
+                <BreadcrumbPage>
+                  <Link href={"/"}>Home</Link>
+                </BreadcrumbPage>
               </BreadcrumbLink>
             </BreadcrumbItem>
             <BreadcrumbSeparator />
