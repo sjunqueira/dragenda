@@ -1,43 +1,50 @@
-import dayjs from "dayjs";
-import customParseFormat from "dayjs/plugin/customParseFormat";
-import timezone from "dayjs/plugin/timezone";
-import utc from "dayjs/plugin/utc";
-import { CalendarDays, Clock, DollarSign, Stethoscope } from "lucide-react";
+"use client";
 
+import {
+  CalendarDays,
+  Clock,
+  DollarSign,
+  Stethoscope,
+  TrashIcon,
+} from "lucide-react";
+import { useAction } from "next-safe-action/hooks";
+import { useState } from "react";
+import { toast } from "sonner";
+
+import { deleteDoctor } from "@/actions/delete-doctor";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import {
   Card,
   CardContent,
   CardFooter,
   CardHeader,
 } from "@/components/ui/card";
+import { Dialog, DialogTrigger } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
+import { doctorsTable } from "@/db/schema/schema";
+import { formatCurrencyInCents } from "@/helpers/currency";
 
-import AddDoctorButton from "./add-doctor-button";
-import { formatCurrencyInCents } from "@/app/helpers/currency";
+import { getAvailability } from "../_helpers/availability";
+import UpsertDoctorForm from "./upsert-doctor-form";
 
-dayjs.extend(customParseFormat);
-dayjs.extend(utc);
-dayjs.extend(timezone);
+interface DoctorCardProps {
+  doctor: typeof doctorsTable.$inferSelect;
+}
 
-type DoctorCardProps = {
-  id: string;
-  avatarImageUrl: string | null;
-  name: string;
-  specialty: string;
-  availableFromWeekDay: number;
-  availableToWeekDay: number;
-  availableFromTime: string;
-  availableToTime: string;
-  appointmentPriceInCents: number;
-  createdAt: Date;
-  updatedAt: Date | null;
-  clinicId: string;
-};
-
-const DoctorCard = (item: DoctorCardProps) => {
-  const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+const DoctorCard = ({ doctor }: DoctorCardProps) => {
   const weekDays = [
     "Domingo",
     "Segunda",
@@ -47,39 +54,42 @@ const DoctorCard = (item: DoctorCardProps) => {
     "Sexta",
     "Sábado",
   ];
-  const fromWeekDayName = weekDays[item.availableFromWeekDay];
-  const toWeekDayName = weekDays[item.availableToWeekDay];
+  const fromWeekDayName = weekDays[doctor.availableFromWeekDay];
+  const toWeekDayName = weekDays[doctor.availableToWeekDay];
+  const [isUpsertDoctorDialogOpen, setIsUpsertDoctorDialogOpen] =
+    useState(false);
+  const deleteDoctorAction = useAction(deleteDoctor, {
+    onSuccess: () => {
+      toast.success("Médico deletado com sucesso.");
+    },
+    onError: () => {
+      toast.error("Erro ao deletar médico.");
+    },
+  });
+  const handleDeleteDoctorClick = () => {
+    if (!doctor) return;
+    deleteDoctorAction.execute({ id: doctor.id });
+  };
 
-  const fromTime = dayjs
-    .utc(item.availableFromTime, "HH:mm:ss")
-    .tz(userTimeZone)
-    .format("HH:mm");
-
-  const toTime = dayjs
-    .utc(item.availableToTime, "HH:mm:ss")
-    .tz(userTimeZone)
-    .format("HH:mm");
+  const doctorInitials = doctor.name
+    .split(" ")
+    .map((name) => name[0])
+    .join("");
+  const availability = getAvailability(doctor);
 
   return (
-    <Card key={item.id} aria-invalid>
+    <Card>
       <CardHeader>
         <div className="flex flex-col items-center justify-center gap-4">
           <Avatar className="h-16 w-16">
             <AvatarImage
-              src={item.avatarImageUrl ?? undefined}
-              alt={item.name ?? ""}
+              src={doctor.avatarImageUrl ?? undefined}
+              alt={doctor.name ?? ""}
             />
-            <AvatarFallback className="items-center justify-center">
-              {item.name
-                ?.split(" ")
-                .map((n) => n[0])
-                .join("")
-                .toUpperCase()
-                .slice(0)}
-            </AvatarFallback>
+            <AvatarFallback>{doctorInitials}</AvatarFallback>
           </Avatar>
           <div className="flex flex-col items-center justify-start gap-2">
-            <h3 className="text-sm font-medium">Dr(a). {item.name}</h3>
+            <h3 className="text-sm font-medium">Dr(a). {doctor.name}</h3>
             <div className="text-muted-foreground flex items-center gap-2 text-sm">
               <div className="rounded-4xl bg-blue-100">
                 <Stethoscope
@@ -87,32 +97,71 @@ const DoctorCard = (item: DoctorCardProps) => {
                   className="justify-center p-1 text-blue-500"
                 />
               </div>
-              {item.specialty}
-            </div>
+              {doctor.specialty}
+            </div>{" "}
           </div>
         </div>
       </CardHeader>
       <Separator />
-      <CardContent className="flex flex-col gap-3">
-        <div className="flex flex-col gap-3">
-          <Badge variant={"secondary"} className="flex items-center gap-2">
-            <CalendarDays size={16} />
-            De {fromWeekDayName} a {toWeekDayName}
-          </Badge>
-          <Badge variant={"secondary"} className="flex items-center gap-2">
-            <Clock size={16} />
-            Das {fromTime} às {toTime}
-          </Badge>
-          <Badge variant={"secondary"} className="flex items-center gap-2">
-            <DollarSign size={16} />
-            {formatCurrencyInCents(item.appointmentPriceInCents)}
-          </Badge>
-        </div>
-        <Separator />
-        <CardFooter className="flex w-full gap-1">
-          <AddDoctorButton variant="secondary" message="Ver detalhes" />
-        </CardFooter>
+      <CardContent className="flex flex-col gap-2">
+        <Badge variant="secondary">
+          <CalendarDays className="flex items-center gap-2" />
+          De {fromWeekDayName} a {toWeekDayName}
+        </Badge>
+        <Badge variant="secondary">
+          <Clock className="flex items-center gap-2" />
+          {availability.from.format("HH:mm")} as{" "}
+          {availability.to.format("HH:mm")}
+        </Badge>
+        <Badge variant="secondary">
+          <DollarSign className="flex items-center gap-2" />
+          {formatCurrencyInCents(doctor.appointmentPriceInCents)}
+        </Badge>
       </CardContent>
+      <Separator />
+      <CardFooter className="flex flex-col gap-2">
+        <Dialog
+          open={isUpsertDoctorDialogOpen}
+          onOpenChange={setIsUpsertDoctorDialogOpen}
+        >
+          <DialogTrigger asChild>
+            <Button className="w-full">Ver detalhes</Button>
+          </DialogTrigger>
+          <UpsertDoctorForm
+            doctor={{
+              ...doctor,
+              availableFromTime: availability.from.format("HH:mm:ss"),
+              availableToTime: availability.to.format("HH:mm:ss"),
+            }}
+            onSuccess={() => setIsUpsertDoctorDialogOpen(false)}
+          />
+        </Dialog>
+        <AlertDialog>
+          <AlertDialogTrigger asChild>
+            <Button variant="outline" className="w-full">
+              <TrashIcon />
+              Deletar médico
+            </Button>
+          </AlertDialogTrigger>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>
+                Tem certeza que deseja deletar esse médico?
+              </AlertDialogTitle>
+              <AlertDialogDescription>
+                Essa ação não pode ser revertida. Isso irá deletar o médico e
+                todas as consultas agendadas.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel>Cancelar</AlertDialogCancel>
+              <AlertDialogAction onClick={handleDeleteDoctorClick}>
+                Deletar
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </CardFooter>
     </Card>
   );
 };
