@@ -1,6 +1,9 @@
-import { Plus } from "lucide-react";
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
+import { DataTable } from "@/components/data-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +12,9 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
+import { db } from "@/db";
+import { patientsTable } from "@/db/schema/schema";
+import { auth } from "@/lib/auth";
 
 import {
   PageContainer,
@@ -20,8 +25,25 @@ import {
   PageHeaderDescription,
   PageHeaderTitle,
 } from "../components/pagecontainer";
+import AddPatientButton from "./_components/add-patient-button";
+import { patientsTableColumns } from "./_components/table-columns";
 
-const PatientsPage = () => {
+const PatientsPage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session?.user) {
+    redirect("/authentication");
+  }
+  if (!session.user.clinic) {
+    redirect("/clinic-form");
+  }
+  // if (!session.user.plan) {
+  //   redirect("/new-subscription");
+  // }
+  const patients = await db.query.patientsTable.findMany({
+    where: eq(patientsTable.clinicId, session.user.clinic.id),
+  });
   return (
     <PageContainer>
       <Breadcrumb>
@@ -47,13 +69,12 @@ const PatientsPage = () => {
           </PageHeaderDescription>
         </PageHeaderContent>
         <PageHeaderActions>
-          <Button variant={"ghost"}>
-            <Plus />
-            Adicionar Paciente
-          </Button>
+          <AddPatientButton />
         </PageHeaderActions>
       </PageHeader>
-      <PageContent>Conteúdo</PageContent>
+      <PageContent>
+        <DataTable data={patients} columns={patientsTableColumns} />
+      </PageContent>
     </PageContainer>
   );
 };

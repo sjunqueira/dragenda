@@ -174,18 +174,14 @@ export const doctorsTableRelations = relations(
 
 //Patients Tables
 
-export const patientsSexEnum = pgEnum("patient_sex", [
-  "male",
-  "female",
-  "other",
-]);
+export const patientsSexEnum = pgEnum("patient_sex", ["male", "female"]);
 
 export const patientsColumns = () => ({
-  id: uuid("id").primaryKey().notNull(),
-  name: text("name").notNull(),
-  clinicId: uuid("patient_id")
+  id: uuid("id").defaultRandom().primaryKey(),
+  clinicId: uuid("clinic_id")
     .notNull()
-    .references(() => clinicsTable.id),
+    .references(() => clinicsTable.id, { onDelete: "cascade" }),
+  name: text("name").notNull(),
   email: text("email").notNull().unique(),
   sex: patientsSexEnum("sex").notNull(),
   phoneNumber: text("phone_number").notNull(),
