@@ -1,6 +1,9 @@
-import { Plus } from "lucide-react";
+import { eq } from "drizzle-orm";
+import { headers } from "next/headers";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
+import { DataTable } from "@/components/data-table";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -9,7 +12,13 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
+import { db } from "@/db";
+import {
+  appointmentsTable,
+  doctorsTable,
+  patientsTable,
+} from "@/db/schema/schema";
+import { auth } from "@/lib/auth";
 
 import {
   PageContainer,
@@ -20,8 +29,37 @@ import {
   PageHeaderDescription,
   PageHeaderTitle,
 } from "../components/pagecontainer";
+import AddAppointmentButton from "./_components/add-appointment-button";
+import { appointmentsTableColumns } from "./_components/table-columns";
 
-const ApointmentsPage = () => {
+const ApointmentsPage = async () => {
+  const session = await auth.api.getSession({
+    headers: await headers(),
+  });
+  if (!session?.user) {
+    redirect("/authentication");
+  }
+  if (!session.user.clinic) {
+    redirect("/clinic-form");
+  }
+  // if (!session.user.plan) {
+  //   redirect("/new-subscription");
+  // }
+  const [patients, doctors, appointments] = await Promise.all([
+    db.query.patientsTable.findMany({
+      where: eq(patientsTable.clinicId, session.user.clinic.id),
+    }),
+    db.query.doctorsTable.findMany({
+      where: eq(doctorsTable.clinicId, session.user.clinic.id),
+    }),
+    db.query.appointmentsTable.findMany({
+      where: eq(appointmentsTable.clinicId, session.user.clinic.id),
+      with: {
+        patient: true,
+        doctor: true,
+      },
+    }),
+  ]);
   return (
     <PageContainer>
       <Breadcrumb>
@@ -47,13 +85,12 @@ const ApointmentsPage = () => {
           </PageHeaderDescription>
         </PageHeaderContent>
         <PageHeaderActions>
-          <Button variant={"ghost"}>
-            <Plus />
-            Adicionar nova consulta
-          </Button>
+          <AddAppointmentButton patients={patients} doctors={doctors} />
         </PageHeaderActions>
       </PageHeader>
-      <PageContent>Conteúdo</PageContent>
+      <PageContent>
+        <DataTable data={appointments} columns={appointmentsTableColumns} />
+      </PageContent>
     </PageContainer>
   );
 };

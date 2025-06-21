@@ -202,17 +202,18 @@ export const patientsTableRelations = relations(patientsTable, ({ one }) => ({
 
 // Appointments Tables
 export const appointmentsColumns = () => ({
-  id: uuid("id").primaryKey().notNull(),
+  id: uuid("id").defaultRandom().primaryKey(),
   date: timestamp("date").notNull(),
-  clinicId: uuid("patient_id")
+  appointmentPriceInCents: integer("appointment_price_in_cents").notNull(),
+  clinicId: uuid("clinic_id")
     .notNull()
-    .references(() => clinicsTable.id),
+    .references(() => clinicsTable.id, { onDelete: "cascade" }),
   patientId: uuid("patient_id")
     .notNull()
-    .references(() => patientsTable.id),
+    .references(() => patientsTable.id, { onDelete: "cascade" }),
   doctorId: uuid("doctor_id")
     .notNull()
-    .references(() => doctorsTable.id),
+    .references(() => doctorsTable.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updatedAt: timestamp("updated_at")
     .defaultNow()
