@@ -43,5 +43,5 @@ export const PageHeaderActions = ({
 };
 
 export const PageContent = ({ children }: { children: React.ReactNode }) => {
-  return <div className="mt-6 mr-3">{children}</div>;
+  return <div className="mt-6 mr-3 space-y-2">{children}</div>;
 };
