@@ -1,5 +1,5 @@
 import dayjs from "dayjs";
-import { Calendar, Plus } from "lucide-react";
+import { Calendar } from "lucide-react";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { redirect } from "next/navigation";
@@ -13,12 +13,12 @@ import {
   BreadcrumbPage,
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
-import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDashboard } from "@/data/get-dashboard";
 import { auth } from "@/lib/auth";
 
 import { appointmentsTableColumns } from "../agendamentos/_components/table-columns";
+import ClinicForm from "../components/clinic-form";
 import {
   PageContainer,
   PageContent,
@@ -49,7 +49,7 @@ const DashboardPage = async ({ searchParams }: DashboardPageProps) => {
     redirect("/authentication");
   }
   if (!session.user.clinic) {
-    redirect("/clinic-form");
+    return <ClinicForm />;
   }
   // if (!session.user.plan) {
   //   redirect("/new-subscription");
