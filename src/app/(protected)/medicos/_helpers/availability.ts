@@ -3,7 +3,7 @@ import "dayjs/locale/pt-br";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
-import { doctorsTable } from "@/db/schema";
+import { doctorsTable } from "@/db/schema/schema";
 
 dayjs.extend(utc);
 dayjs.locale("pt-br");
